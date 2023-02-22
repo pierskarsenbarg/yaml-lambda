@@ -1,0 +1,31 @@
+name: yaml-lambda
+runtime: yaml
+description: A minimal AWS Pulumi YAML program
+resources:
+  iamForLambda:
+    type: aws:iam:Role
+    properties:
+      assumeRolePolicy: |
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Effect": "Allow",
+              "Sid": ""
+            }
+          ]
+        }
+  mylambda:
+    type: aws:lambda:Function
+    properties:
+      code: 
+        fn::assetArchive:
+          .: 
+            fn::fileArchive: ./app
+      handler: index.handler
+      runtime: nodejs16.x
+      role: ${iamForLambda.arn}
